@@ -68,7 +68,6 @@ def start_quiz(request):
             return render(request, 'quiz_details.html', {'start': 'start'})
         elif (q_id != '' or q_id is not None) and not end and not option:
             ques = ques.get(id=int(q_id))
-            # t = time.split(':').map(int)
             t = [00,00]
             if time:
                 t = list(map(int, time.split(':')))
@@ -110,7 +109,6 @@ def start_quiz(request):
             time = str(9 - time[0]) + ':' + str(60 - time[1])
             return render(request, 'quiz_details.html', {'end_quiz': 'end_quiz', 'sum_of_score': sum_of_score['score'],
                                                          'time': time, 'result': result})
-
     return render(request, 'quiz_details.html')
 
 
