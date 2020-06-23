@@ -25,7 +25,7 @@
 
         {% elif start %}
         <div class="row justify-content-center border rounded" id="timer" onload="setInterval()" style="width: 7%; margin-left: 45%; margin-top: 1%; text-align: center;">
-
+        10:00
         </div>
         <div class="w-95 p-3" id="" style="background-color: #eee; margin-left: 10px; margin-right: 10px; margin-top: 18px;">
             <div class="row">
@@ -80,6 +80,8 @@
             <p style="margin-top: 15px;">Your response is submitted successfully</p>
             {% if sum_of_score %}
                 <p style="margin-top: 15px;">Your score is: {{ sum_of_score }}</p>
+                <p style="margin-top: 15px;">Time: {{ time }}</p>
+                <p style="margin-top: 15px;">Time: {{ result }}</p>
             {% else %}
                 <p style="margin-top: 15px;">Your score is: 0</p>
             {% endif %}
@@ -97,8 +99,11 @@
         window.location.href = url;
         };
 
+    if (window.location.pathname == "/start_quiz/"){
+        setTimer();
+        };
+
     $.get("/start_quiz/?"+"&q_id="+"1", function(data, status){
-        console.log(data);
         next();
       });
 
@@ -113,26 +118,18 @@
             }
             if (q_id && option){
                 url = "/start_quiz/?"+"&candidate="+user+"&q_id="+q_id+"&option="+option;
-                $.ajax({
-                      url: url,
-                      type: "GET", //send it through get method
-                      success: function(response) {
-                        // Do something
-                            $(':radio:not(:checked)').attr('disabled', true); // disable the radio buttons
-                            if (response.msg){
-                                document.getElementById("wrong_ans").innerHTML = response.msg.fontcolor("green")+'.'+
-                                '\n' + ('Your answer is: ' +response.ans).fontcolor("blue");
-                                }
-                            else{
-                                document.getElementById("wrong_ans").innerHTML = "Your answer is wrong".fontcolor("red");
-                                document.getElementById("answer").innerHTML = "Right answer is: " + response.answer;
-                                document.getElementById("explanation").innerHTML = response.explanation;
-                                }
-
-                        },
-                      error: function(xhr) {
-                        //Do Something to handle error
-                      }
+                $.get(url, function( response, status){
+                        $(':radio:not(:checked)').attr('disabled', true); // disable the radio buttons
+                        $(':radio:not(:checked)').attr('disabled', true); // disable the radio buttons
+                        if (response.msg){
+                            document.getElementById("wrong_ans").innerHTML = response.msg.fontcolor("green")+'.'+
+                            '\n' + ('Your answer is: ' +response.ans).fontcolor("blue");
+                            }
+                        else{
+                            document.getElementById("wrong_ans").innerHTML = "Your answer is wrong".fontcolor("red");
+                            document.getElementById("answer").innerHTML = "Right answer is: " + response.answer;
+                            document.getElementById("explanation").innerHTML = response.explanation;
+                            }
 
                     });
             };
@@ -142,7 +139,8 @@
     function previous(){
         if (q_id > 1){
             q_id--;
-            url = "/start_quiz/?"+"&q_id="+q_id;
+            time = document.getElementById('timer').innerText;
+            url = "/start_quiz/?"+"&q_id="+q_id+"&time="+time;
             next_previous(url);
         }
     };
@@ -151,13 +149,17 @@
     function next(){
         q_id++;
         if (q_id <= '10'){
-            url = "/start_quiz/?"+"&q_id="+q_id;
+            time = document.getElementById('timer').innerText;
+            url = "/start_quiz/?"+"&q_id="+q_id+"&time="+time;
             next_previous(url);
         }
         };
 
     // check for next and previous question and answer
     function next_previous(url){
+        $("#wrong_ans").empty();
+        $("#answer").empty();
+        $("#explanation").empty();
         $( "#container" ).empty();
             $( "#q_id" ).empty();
             $.get(url, function(data, status){
@@ -185,30 +187,33 @@
     };
 
     function end_quiz(){
-        url = "/start_quiz/?"+"&candidate="+user+"&end_quiz="+"end_quiz";
+        time = document.getElementById('timer').innerText;
+        url = "/start_quiz/?"+"&candidate="+user+"&end_quiz="+"end_quiz"+"&time="+time;
         window.location.href = url;
         };
 
     // setting timer
-    duration = 60 * 10;
-    display = document.querySelector('#time');
-    var timer = duration, minutes, seconds;
-    setInterval( function () {
-        minutes = parseInt(timer / 60, 10);
-        seconds = parseInt(timer % 60, 10);
 
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
+    function setTimer(duration=60*10){
+        display = document.querySelector('#time');
+        var timer = duration, minutes, seconds;
+        setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
 
-            document.getElementById('timer').innerHTML = minutes + ":" + seconds
-            if (minutes == 00 && seconds == 00){
-                end_quiz();
-                }
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
 
-        if (--timer < 0) {
-            timer = duration;
-        }
-    }, 1000);
+                document.getElementById('timer').innerHTML = minutes + ":" + seconds
+                if (minutes == 00 && seconds == 00){
+                    end_quiz();
+                    }
+
+            if (--timer < 0) {
+                timer = duration;
+            }
+        }, 1000);
+        };
 
 </script>
 </html>

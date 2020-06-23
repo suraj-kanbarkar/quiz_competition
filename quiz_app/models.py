@@ -19,11 +19,12 @@ class Questions(models.Model):
 
 class UserAnswerDetails(models.Model):
     object = models.Manager()
-    contestant = models.ForeignKey(User, on_delete=models.CASCADE)
+    contestant = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     question = models.TextField(blank=True, null=True)
     answer = models.CharField(max_length=128, blank=True, null=True)
     score = models.IntegerField(blank=True, null=True)
-    time = models.TimeField(blank=True, null=True)
+    time = models.CharField(max_length=20, blank=True, null=True)
+    end_quiz = models.BooleanField(null=True, blank=True)
 
     def __str__(self):
         template = '{0.contestant} {0.question} {0.answer} {0.score} {0.time}'

@@ -1,4 +1,3 @@
-import json
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
@@ -63,13 +62,20 @@ def start_quiz(request):
         end = request.GET.get('end_quiz')
         option = request.GET.get('option')
         candidate = request.GET.get('candidate')
+        time = request.GET.get('time')
         ques = Questions.object.all()
         if start:
             return render(request, 'quiz_details.html', {'start': 'start'})
         elif (q_id != '' or q_id is not None) and not end and not option:
             ques = ques.get(id=int(q_id))
+            # t = time.split(':').map(int)
+            t = [00,00]
+            if time:
+                t = list(map(int, time.split(':')))
+            else:
+                t = [60, 10]
             return JsonResponse({'id': ques.id, 'question': ques.question, 'options': [ques.A, ques.B,
-                                                      ques.C, ques.D]}, status=200)
+                                                      ques.C, ques.D], 'minutes': t[0], 'seconds': t[1]}, status=200)
         elif (q_id != '' or q_id is not None) and option is not None and candidate:
             ans = ques.get(id=int(q_id))
             right_ans = ans.answer
@@ -83,20 +89,28 @@ def start_quiz(request):
                 except ObjectDoesNotExist:
                     pass
             if right_ans == option:
-                a = a.create(question=ans.question, answer=option, score=1, contestant_id=contestant_id)
-                a.save()
-                return JsonResponse({'msg': 'Your answer is right'}, status=200)
+                save_ans = a.create(question=ans.question, answer=option, score=1, time=time, contestant_id=contestant_id)
+                save_ans.save()
+                b = UserAnswerDetails.object.filter(contestant_id=contestant_id).get(answer=ans.answer)
+                return JsonResponse({'msg': 'Your answer is right', 'ans': b.answer}, status=200)
             elif right_ans != option:
-                a = a.create(question=ans.question, answer=option, score=0, contestant_id=contestant_id)
+                a = a.create(question=ans.question, answer=option, score=0, time=time, contestant_id=contestant_id)
                 a.save()
                 return JsonResponse({'answer': right_ans, 'explanation': explanation}, status=200)
-        else:
-            contestant_id = User.objects.get(username=candidate).id
-            sum_of_score = UserAnswerDetails.object.filter(contestant_id=contestant_id).aggregate(score=Sum('score'))
-            print(sum_of_score)
-            return render(request, 'quiz_details.html', {'end_quiz': 'end_quiz', 'sum_of_score': sum_of_score['score']})
 
-    return render(request, 'quiz_details.html', {'id': ques.id, 'question': str(ques.id) +'. '+ ques.question, 'options': [ques.A, ques.B,
-                                                      ques.C, ques.D], 'time': '10:00'})
+        if end:
+            contestant_id = User.objects.get(username=candidate).id
+            last_data = UserAnswerDetails.object.filter(contestant_id=contestant_id)
+            sum_of_score = last_data.aggregate(score=Sum('score'))
+            if sum_of_score['score'] and sum_of_score['score'] > 7:
+                result = 'Pass'
+            else:
+                result = 'Fail'
+            time = list(map(int, time.split(':')))
+            time = str(9 - time[0]) + ':' + str(60 - time[1])
+            return render(request, 'quiz_details.html', {'end_quiz': 'end_quiz', 'sum_of_score': sum_of_score['score'],
+                                                         'time': time, 'result': result})
+
+    return render(request, 'quiz_details.html')
 
 
