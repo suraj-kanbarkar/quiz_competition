@@ -79,7 +79,7 @@ def start_quiz(request):
             if ans.question:
                 try:
                     if ans.question == a.get(question=ans.question).question:
-                        return JsonResponse({'msg': 'You have already submitted your answer'}, status=200)
+                        return JsonResponse({'msg': 'You have already submitted your answer', 'ans': a.get(question=ans.question).answer}, status=200)
                 except ObjectDoesNotExist:
                     pass
             if right_ans == option:

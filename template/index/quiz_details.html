@@ -120,7 +120,8 @@
                         // Do something
                             $(':radio:not(:checked)').attr('disabled', true); // disable the radio buttons
                             if (response.msg){
-                                document.getElementById("wrong_ans").innerHTML = response.msg.fontcolor("green");
+                                document.getElementById("wrong_ans").innerHTML = response.msg.fontcolor("green")+'.'+
+                                '\n' + ('Your answer is: ' +response.ans).fontcolor("blue");
                                 }
                             else{
                                 document.getElementById("wrong_ans").innerHTML = "Your answer is wrong".fontcolor("red");
