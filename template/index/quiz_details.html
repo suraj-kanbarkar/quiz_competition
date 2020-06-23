@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light dropdown">
+            <form class="form-inline my-2 my-lg-0 align-self-end ml-auto">
+                <p style="margin-top: 20px; margin-right: 20px;" id="name"> </p>
+                <a class="btn btn-outline-success " type="submit" href="{% url 'signin' %}" id="logout" >Logout</a>
+            </form>
+        </nav>
+
+        {% if not start and not end_quiz %}
+        <div class="w-25 p-3" id="start_quiz" style="background-color: #eee; margin-left: 600px; margin-top: 30px;">
+            <p> You will get 10 min to complete this quiz. All questions are MCQs.</p>
+            <p><b>To start the Quiz click on below button</b></p>
+            <button class="btn btn-info" onclick="start_quiz()"> Start Quiz </button>
+        </div>
+
+        {% elif start %}
+        <div class="row justify-content-center border rounded" id="timer" onload="setInterval()" style="width: 7%; margin-left: 45%; margin-top: 1%; text-align: center;">
+
+        </div>
+        <div class="w-95 p-3" id="" style="background-color: #eee; margin-left: 10px; margin-right: 10px; margin-top: 18px;">
+            <div class="row">
+                <div class="col">
+                  <p><b>Question</b></p>
+                    <hr>
+                    <div class="row">
+                        <div class="col">
+                            <input id="q_id" value="{{ id }}" hidden>
+                            <label id="question">{{ question }}</label>
+                            <br>
+                            <br>
+                            <div>
+                                <div id="container">
+                                    {% for i in options %}
+                                      <div>
+                                        <input type="radio" id="option" hidden>
+
+                                          <input type="radio" id="{{ i }}" name="option"><label for="{{ i }}"> {{ i }}</label><br>
+
+                                      </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row float-right" style="margin-top: 210px; margin-right: 1px;">
+                        <div class="col">
+                        <button class="btn btn-info" onclick="submit()"> Submit </button>
+                        <button class="btn btn-info" onclick="previous()"> Previous </button>
+                        <button class="btn btn-info" onclick="next()"> Next </button>
+                        <button class="btn btn-info" onclick="end_quiz()"> End Quiz </button>
+                        </div>
+                    </div>
+                </div>
+                <div style="border-left: 6px solid green; height: 500px;"></div>
+                <div class="col-md-auto col-lg-4">
+                  <p><b> Answer Detail </b></p>
+                    <hr>
+                    <div class="row">
+                        <div class="col">
+                            <p id="wrong_ans"></p>
+                            <p id="answer"></p>
+                            <p id="explanation"></p>
+                        </div>
+                    </div>
+                </div>
+              </div>
+        </div>
+        {% else %}
+        <div class="w-25 p-3 text-center" style="background-color: #eee; margin-left: 600px; margin-top: 30px;">
+            <p style="margin-top: 15px;">Your response is submitted successfully</p>
+            {% if sum_of_score %}
+                <p style="margin-top: 15px;">Your score is: {{ sum_of_score }}</p>
+            {% else %}
+                <p style="margin-top: 15px;">Your score is: 0</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+</body>
+<script>
+    user = localStorage.getItem("user");
+    document.getElementById("name").innerHTML = "Welcome " + user;
+    q_id = document.getElementById("q_id").value;
+    function start_quiz(){
+        url = "/start_quiz/?"+"&s_quiz="+"start_quiz";
+        window.location.href = url;
+        };
+
+    $.get("/start_quiz/?"+"&q_id="+"1", function(data, status){
+        console.log(data);
+        next();
+      });
+
+
+    var option;
+    function submit(){
+        var ele = document.getElementsByName('option');
+            for(i = 0; i < ele.length; i++) {
+                if(ele[i].checked) {
+                    option = ele[i].value;
+                }
+            }
+            if (q_id && option){
+                url = "/start_quiz/?"+"&candidate="+user+"&q_id="+q_id+"&option="+option;
+                $.ajax({
+                      url: url,
+                      type: "GET", //send it through get method
+                      success: function(response) {
+                        // Do something
+                            $(':radio:not(:checked)').attr('disabled', true); // disable the radio buttons
+                            if (response.msg){
+                                document.getElementById("wrong_ans").innerHTML = response.msg.fontcolor("green");
+                                }
+                            else{
+                                document.getElementById("wrong_ans").innerHTML = "Your answer is wrong".fontcolor("red");
+                                document.getElementById("answer").innerHTML = "Right answer is: " + response.answer;
+                                document.getElementById("explanation").innerHTML = response.explanation;
+                                }
+
+                        },
+                      error: function(xhr) {
+                        //Do Something to handle error
+                      }
+
+                    })
+            }
+        };
+
+    function previous(){
+        if (q_id > 1){
+            q_id--;
+            url = "/start_quiz/?"+"&q_id="+q_id;
+            next_previous(url);
+        }
+    };
+
+    function next(){
+        q_id++;
+        if (q_id <= '10'){
+            url = "/start_quiz/?"+"&q_id="+q_id;
+            next_previous(url);
+        }
+        };
+
+    function next_previous(url){
+        $( "#container" ).empty();
+            $( "#q_id" ).empty();
+            $.get(url, function(data, status){
+                document.getElementById('question').innerHTML = data.id + '. ' +  data.question;
+                document.getElementById('q_id').innerHTML = data.id;
+                    for(i = 0; i < 4; i++) {
+                        var value = data.options[i];
+                            $('#container').append(
+                                $('<input>').prop({
+                                    type: 'radio',
+                                    id: value,
+                                    name: "option",
+                                    value: value
+                                })
+                                ).append(
+                                  $('<label>').prop({
+                                    for: value
+                                  }).html(value)
+                                ).append(
+                                  $('<br>')
+                                );
+                    }
+
+            });
+    };
+
+    function end_quiz(){
+        url = "/start_quiz/?"+"&candidate="+user+"&end_quiz="+"end_quiz";
+        window.location.href = url;
+        };
+
+<!--    function startTimer(duration, display) {-->
+            duration = 60 * 10;
+            display = document.querySelector('#time');
+            var timer = duration, minutes, seconds;
+            setInterval( function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                    document.getElementById('timer').innerHTML = minutes + ":" + seconds
+                    if (minutes == 00 && seconds == 00){
+                        end_quiz();
+                        }
+
+                if (--timer < 0) {
+                    timer = duration;
+                }
+            }, 1000);
+<!--        }-->
+<!--        window.onload = function () {-->
+<!--            var Minutes = 60 * 10;-->
+<!--            display = document.querySelector('#time');-->
+<!--            startTimer(Minutes, display);-->
+<!--        };-->
+
+</script>
+</html>
