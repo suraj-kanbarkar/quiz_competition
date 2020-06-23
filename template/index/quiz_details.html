@@ -89,7 +89,7 @@
 
 </body>
 <script>
-    user = localStorage.getItem("user");
+    user = localStorage.getItem("user"); // accessing user
     document.getElementById("name").innerHTML = "Welcome " + user;
     q_id = document.getElementById("q_id").value;
     function start_quiz(){
@@ -133,10 +133,11 @@
                         //Do Something to handle error
                       }
 
-                    })
-            }
+                    });
+            };
         };
 
+    // accessing previous question and answer
     function previous(){
         if (q_id > 1){
             q_id--;
@@ -145,6 +146,7 @@
         }
     };
 
+    // accessing next question and answer
     function next(){
         q_id++;
         if (q_id <= '10'){
@@ -153,6 +155,7 @@
         }
         };
 
+    // check for next and previous question and answer
     function next_previous(url){
         $( "#container" ).empty();
             $( "#q_id" ).empty();
@@ -185,32 +188,26 @@
         window.location.href = url;
         };
 
-<!--    function startTimer(duration, display) {-->
-            duration = 60 * 10;
-            display = document.querySelector('#time');
-            var timer = duration, minutes, seconds;
-            setInterval( function () {
-                minutes = parseInt(timer / 60, 10);
-                seconds = parseInt(timer % 60, 10);
+    // setting timer
+    duration = 60 * 10;
+    display = document.querySelector('#time');
+    var timer = duration, minutes, seconds;
+    setInterval( function () {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
 
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
 
-                    document.getElementById('timer').innerHTML = minutes + ":" + seconds
-                    if (minutes == 00 && seconds == 00){
-                        end_quiz();
-                        }
-
-                if (--timer < 0) {
-                    timer = duration;
+            document.getElementById('timer').innerHTML = minutes + ":" + seconds
+            if (minutes == 00 && seconds == 00){
+                end_quiz();
                 }
-            }, 1000);
-<!--        }-->
-<!--        window.onload = function () {-->
-<!--            var Minutes = 60 * 10;-->
-<!--            display = document.querySelector('#time');-->
-<!--            startTimer(Minutes, display);-->
-<!--        };-->
+
+        if (--timer < 0) {
+            timer = duration;
+        }
+    }, 1000);
 
 </script>
 </html>
