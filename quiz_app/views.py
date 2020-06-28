@@ -64,8 +64,20 @@ def start_quiz(request):
         candidate = request.GET.get('candidate')
         time = request.GET.get('time')
         ques = Questions.object.all()
-        if start:
-            return render(request, 'quiz_details.html', {'start': 'start'})
+        if start and candidate:
+            contestant_id = User.objects.get(username=candidate).id
+            a = UserAnswerDetails.object.filter(contestant_id=contestant_id)
+            sum_of_score = a.aggregate(score=Sum('score'))
+            if sum_of_score['score'] and sum_of_score['score'] > 7:
+                result = 'Pass'
+            else:
+                result = 'Fail'
+            try:
+                if a.get(end_quiz=True):
+                    return render(request, 'quiz_details.html', {'end_quiz': 'end_quiz', 'sum_of_score': sum_of_score['score'],
+                                                         'result': result})
+            except ObjectDoesNotExist:
+                return render(request, 'quiz_details.html', {'start': 'start'})
         elif (q_id != '' or q_id is not None) and not end and not option:
             ques = ques.get(id=int(q_id))
             t = [00,00]
@@ -100,6 +112,7 @@ def start_quiz(request):
         if end:
             contestant_id = User.objects.get(username=candidate).id
             last_data = UserAnswerDetails.object.filter(contestant_id=contestant_id)
+            last_data.create(contestant_id=contestant_id, end_quiz=True).save()
             sum_of_score = last_data.aggregate(score=Sum('score'))
             if sum_of_score['score'] and sum_of_score['score'] > 7:
                 result = 'Pass'

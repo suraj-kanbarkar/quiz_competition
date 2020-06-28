@@ -95,7 +95,7 @@
     document.getElementById("name").innerHTML = "Welcome " + user;
     q_id = document.getElementById("q_id").value;
     function start_quiz(){
-        url = "/start_quiz/?"+"&s_quiz="+"start_quiz";
+        url = "/start_quiz/?"+"&s_quiz="+"start_quiz"+"&candidate="+user;
         window.location.href = url;
         };
 
@@ -192,8 +192,8 @@
         window.location.href = url;
         };
 
-    // setting timer
 
+    // setting timer
     function setTimer(duration=60*10){
         display = document.querySelector('#time');
         var timer = duration, minutes, seconds;
