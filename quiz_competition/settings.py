@@ -11,12 +11,13 @@ MEDIA_DIR = os.path.join(BASE_DIR, "media")
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '!!n3&)_=f&ac&7axthi)0*9z6td_=7h!k#36!f#n4%5j*c_p3x'
+#SECRET_KEY = "7d1ab807e1f4fd9118ad23caffbc5867f0b1b471faf207ec"
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://quizeapp.herokuapp.com/']
 
 
 # Application definition

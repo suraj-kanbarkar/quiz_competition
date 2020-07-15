@@ -8,8 +8,7 @@ import datetime
 class Command(BaseCommand):
     def handle(self, *args, **options):
 
-        with open('/home/appdevelopement/PycharmProjects/quize_competition/quiz_competition/media/quiz_questions.csv',
-                  'rt') as file:
+        with open('media/quiz_questions.csv', 'rt') as file:
             reader = csv.DictReader(file, delimiter=',')
             for item in reader:
                 f = Questions(question=item['question'], A=item['A'], B=item['B'], C=item['C'], D=item['D'],

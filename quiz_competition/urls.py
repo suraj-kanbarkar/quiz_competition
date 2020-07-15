@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^signup/', views.signup, name='signup'),
     url(r'^signin/', views.signin, name='signin'),
     url('admin/', admin.site.urls),
+    url(r'^', views.signin),
 ]

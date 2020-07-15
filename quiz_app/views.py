@@ -73,11 +73,12 @@ def start_quiz(request):
             else:
                 result = 'Fail'
             try:
-                if a.get(end_quiz=True):
+                if a.filter(end_quiz=True):
                     return render(request, 'quiz_details.html', {'end_quiz': 'end_quiz', 'sum_of_score': sum_of_score['score'],
                                                          'result': result})
             except ObjectDoesNotExist:
                 return render(request, 'quiz_details.html', {'start': 'start'})
+            return render(request, 'quiz_details.html', {'start': 'start'})
         elif (q_id != '' or q_id is not None) and not end and not option:
             ques = ques.get(id=int(q_id))
             t = [00,00]
@@ -123,5 +124,6 @@ def start_quiz(request):
             return render(request, 'quiz_details.html', {'end_quiz': 'end_quiz', 'sum_of_score': sum_of_score['score'],
                                                          'time': time, 'result': result})
     return render(request, 'quiz_details.html')
+
 
 
