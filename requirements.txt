@@ -9,7 +9,7 @@ mysqlclient==1.4.6
 psycopg2==2.8.5
 PyMySQL==0.9.3
 pytz==2020.1
-PyYAML==5.3.1
+PyYAML==5.4
 render==1.0.0
 sqlparse==0.3.1
 whitenoise==5.1.0
